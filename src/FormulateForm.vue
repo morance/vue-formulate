@@ -72,6 +72,7 @@ export default {
       )
     },
     isVmodeled () {
+      // 初始化事件在vm上创建一个_events对象
       return !!(this.$options.propsData.hasOwnProperty('formulateValue') &&
         this._events &&
         Array.isArray(this._events.input) &&

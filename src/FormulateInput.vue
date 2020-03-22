@@ -64,12 +64,13 @@ import nanoid from 'nanoid/non-secure'
 
 export default {
   name: 'FormulateInput',
-  inheritAttrs: false,
+  inheritAttrs: false, // 组件将不会把未被注册的props呈现为普通的HTML属性，$attrs 将所有传入的prop都拿到
   inject: {
     formulateFormSetter: { default: undefined },
     formulateFormRegister: { default: undefined },
     getFormValues: { default: () => () => ({}) }
   },
+  // 自定义组件的v-model
   model: {
     prop: 'formulateValue',
     event: 'input'
@@ -191,17 +192,35 @@ export default {
     return {
       defaultId: nanoid(9),
       localAttributes: {},
-      internalModelProxy: this.getInitialValue(),
+      internalModelProxy: this.getInitialValue(), //设当前值
       behavioralErrorVisibility: (this.errorBehavior === 'live'),
       formShouldShowErrors: false,
       validationErrors: [],
       pendingValidation: Promise.resolve()
     }
   },
+  // initLifecycle(vm)
+  // initEvents(vm)
+  // initRender(vm)
+  // callHook(vm, 'beforeCreate')
+  // initInjections(vm) // resolve injections before data/props
+  // initState(vm) //初始化
+  // initProvide(vm) // resolve provide after data/props
+  // callHook(vm, 'created')
+
+  // initState
+//   if (opts.props) initProps(vm, opts.props)//初始化Props
+// if (opts.methods) initMethods(vm, opts.methods)//初始化methods
+// if (opts.data) {
+//   initData(vm)} else {
+//   observe(vm._data = {}, true /* asRootData */)}//初始化data
+// if (opts.computed) initComputed(vm, opts.computed)//初始化computed
+
   computed: {
-    ...context,
+    // 把传入的都搞好了先
+    ...context, //初始整个实例
     classification () {
-      const classification = this.$formulate.classify(this.type)
+      const classification = this.$formulate.classify(this.type) // vue实例会带上的方法
       return (classification === 'box' && this.options) ? 'group' : classification
     },
     component () {
@@ -242,7 +261,8 @@ export default {
     }
   },
   created () {
-    this.applyInitialValue()
+    this.applyInitialValue() // 把值赋到对象上
+    // 注册表明在form里面使用
     if (this.formulateFormRegister && typeof this.formulateFormRegister === 'function') {
       this.formulateFormRegister(this.nameOrFallback, this)
     }
@@ -280,7 +300,9 @@ export default {
       }
     },
     performValidation () {
+      // 把校验函数和参数处理好
       const rules = parseRules(this.validation, this.$formulate.rules(this.parsedValidationRules))
+      // 通过promise的all把所有该校验的都一次过校验完后再触发渲染
       this.pendingValidation = Promise.all(
         rules.map(([rule, args]) => {
           var res = rule({
